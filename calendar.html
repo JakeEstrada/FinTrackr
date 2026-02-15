@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTrackr - Bill Calendar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Regular Theme (Default) */
+    :root {
+      --bg-primary: #f5f7fa;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f8f9fb;
+      --bg-card: #ffffff;
+      --accent-primary: #2563eb;
+      --accent-secondary: #7c3aed;
+      --accent-success: #10b981;
+      --accent-warning: #f59e0b;
+      --accent-danger: #ef4444;
+      --accent-info: #06b6d4;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --border-color: #e5e7eb;
+      --shadow-sm: rgba(0, 0, 0, 0.05);
+      --shadow-md: rgba(0, 0, 0, 0.1);
+      --shadow-lg: rgba(0, 0, 0, 0.15);
+      --shadow-deep: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Cyberpunk Theme */
+    [data-theme="cyberpunk"] {
+      --bg-primary: #000000;
+      --bg-secondary: #0a0a0f;
+      --bg-tertiary: #151520;
+      --bg-card: #0f0f1a;
+      --accent-primary: #00ffff;
+      --accent-secondary: #ff00ff;
+      --accent-success: #00ff41;
+      --accent-warning: #ffff00;
+      --accent-danger: #ff1493;
+      --accent-info: #00bfff;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0ff;
+      --text-muted: #6b6b9f;
+      --border-color: #2a2a3f;
+      --shadow-sm: rgba(0, 255, 255, 0.3);
+      --shadow-md: rgba(255, 0, 255, 0.3);
+      --shadow-lg: rgba(0, 255, 255, 0.5);
+      --shadow-deep: rgba(0, 0, 0, 0.8);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Background Patterns */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(124, 58, 237, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(245, 247, 250, 0.95) 0%, rgba(255, 255, 255, 1) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    [data-theme="cyberpunk"] body::before {
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 0, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0, 191, 255, 0.08) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%);
+      animation: pulseGlow 8s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      padding: 1.75rem 3rem;
+      border-bottom: 2px solid var(--accent-primary);
+      backdrop-filter: blur(40px) saturate(180%);
+      background: rgba(255, 255, 255, 0.9);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 
+        0 8px 32px var(--shadow-md),
+        inset 0 -2px 0 var(--accent-primary);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="cyberpunk"] .header {
+      background: rgba(0, 0, 0, 0.85);
+      border-bottom-color: var(--accent-primary);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 40px var(--shadow-sm),
+        inset 0 -2px 0 var(--accent-primary);
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: white;
+      box-shadow: 
+        0 8px 24px var(--shadow-md),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="cyberpunk"] .logo-icon {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      box-shadow: 
+        0 0 40px var(--shadow-sm),
+        0 0 40px var(--shadow-md),
+        0 8px 24px var(--shadow-deep),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { 
+        box-shadow: 
+          0 0 40px var(--shadow-sm),
+          0 0 40px var(--shadow-md),
+          0 8px 24px var(--shadow-deep);
+      }
+      50% { 
+        box-shadow: 
+          0 0 60px var(--shadow-sm),
+          0 0 60px var(--shadow-md),
+          0 0 100px rgba(0, 255, 255, 0.3),
+          0 8px 24px var(--shadow-deep);
+      }
+    }
+
+    .logo-text {
+      font-size: 1.75rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.3s ease;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 0.875rem 1.75rem;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      box-shadow: 
+        0 4px 20px var(--shadow-md),
+        0 8px 32px var(--shadow-sm),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--accent-primary);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 
+        0 8px 40px var(--shadow-lg),
+        0 12px 48px var(--shadow-md),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .theme-toggle {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: 2px solid var(--accent-primary);
+      background: var(--bg-card);
+      color: var(--accent-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px var(--shadow-sm);
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1) rotate(15deg);
+      box-shadow: 0 6px 20px var(--shadow-md);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+    }
+
+    /* Calendar Container */
+    .calendar-container {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 251, 0.98));
+      border: 2px solid var(--accent-primary);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 
+        0 20px 60px var(--shadow-lg),
+        0 0 0 1px var(--accent-primary),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="cyberpunk"] .calendar-container {
+      background: linear-gradient(135deg, rgba(15, 15, 26, 0.95), rgba(10, 10, 15, 0.98));
+      border-color: var(--accent-primary);
+      box-shadow: 
+        0 20px 60px var(--shadow-deep),
+        0 0 0 1px var(--accent-primary),
+        0 0 60px var(--shadow-sm),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Calendar Header */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      font-size: 1.2rem;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent-primary);
+      background: var(--accent-primary);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .calendar-month {
+      font-size: 1.75rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+    }
+
+    /* Calendar Grid */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calendar-day-header {
+      padding: 1rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100px;
+    }
+
+    .calendar-day:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow-md);
+    }
+
+    .calendar-day.other-month {
+      opacity: 0.3;
+    }
+
+    .calendar-day.today {
+      border: 2px solid var(--accent-primary);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    [data-theme="cyberpunk"] .calendar-day.today {
+      background: rgba(0, 255, 255, 0.1);
+      box-shadow: 0 0 20px var(--shadow-sm);
+    }
+
+    .day-number {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .bill-item-calendar {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      margin: 0.15rem 0;
+      border-radius: 4px;
+      background: var(--accent-danger);
+      color: white;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .bill-item-calendar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .bill-item-calendar.urgent {
+      background: var(--accent-danger);
+    }
+
+    .bill-item-calendar.normal {
+      background: var(--accent-info);
+    }
+
+    [data-theme="cyberpunk"] .bill-item-calendar.urgent {
+      background: var(--accent-danger);
+      box-shadow: 0 0 10px var(--shadow-lg);
+    }
+
+    [data-theme="cyberpunk"] .bill-item-calendar.normal {
+      background: var(--accent-info);
+      box-shadow: 0 0 10px var(--shadow-sm);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .sidebar-section {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 251, 0.98));
+      border: 2px solid var(--accent-primary);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 
+        0 8px 32px var(--shadow-md),
+        0 0 0 1px var(--accent-primary),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="cyberpunk"] .sidebar-section {
+      background: linear-gradient(135deg, rgba(15, 15, 26, 0.95), rgba(10, 10, 15, 0.98));
+      box-shadow: 
+        0 8px 32px var(--shadow-deep),
+        0 0 0 1px var(--accent-primary),
+        0 0 30px var(--shadow-sm),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Bills List */
+    .bills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .bill-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .bill-list-item:hover {
+      border-color: var(--accent-primary);
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px var(--shadow-sm);
+    }
+
+    .bill-list-item.urgent {
+      border-left: 3px solid var(--accent-danger);
+    }
+
+    .bill-list-item.normal {
+      border-left: 3px solid var(--accent-info);
+    }
+
+    .bill-list-info {
+      flex: 1;
+    }
+
+    .bill-list-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .bill-list-date {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .bill-list-amount {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Notes Section */
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .note-item {
+      padding: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .add-note-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    .add-note-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    [data-theme="cyberpunk"] .add-note-btn:hover {
+      background: rgba(0, 255, 255, 0.1);
+    }
+
+    /* Savings Goals */
+    .savings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .savings-item {
+      padding: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-success);
+    }
+
+    .savings-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .savings-progress {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .savings-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .savings-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-success), var(--accent-info));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    [data-theme="cyberpunk"] .savings-fill {
+      background: linear-gradient(90deg, var(--accent-success), var(--accent-primary));
+      box-shadow: 0 0 10px var(--shadow-sm);
+    }
+
+    .savings-amount {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .savings-target {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Scrollbar Styling */
+    .bills-list::-webkit-scrollbar,
+    .notes-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .bills-list::-webkit-scrollbar-track,
+    .notes-list::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+
+    .bills-list::-webkit-scrollbar-thumb,
+    .notes-list::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .bills-list::-webkit-scrollbar-thumb:hover,
+    .notes-list::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-primary);
+    }
+
+    /* Bill Details Modal */
+    .bill-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .bill-modal.active {
+      display: flex;
+    }
+
+    .bill-modal-content {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      border: 2px solid var(--accent-primary);
+      box-shadow: 0 20px 60px var(--shadow-deep);
+    }
+
+    .bill-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .bill-modal-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .close-modal {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .close-modal:hover {
+      background: var(--accent-danger);
+      color: white;
+      border-color: var(--accent-danger);
+    }
+
+    .bill-detail {
+      margin-bottom: 1rem;
+    }
+
+    .bill-detail-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    .bill-detail-value {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1.5rem;
+        grid-template-columns: 1fr;
+      }
+      .header {
+        padding: 1.5rem;
+      }
+      .calendar-container {
+        padding: 1.5rem;
+      }
+      .calendar-day {
+        min-height: 60px;
+      }
+      .bill-item-calendar {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+      }
+      .sidebar-section {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">F</div>
+          <div class="logo-text">FinTrackr</div>
+        </div>
+        <div class="header-actions">
+          <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+            <span id="themeIcon">🌙</span>
+          </button>
+          <a href="prototype.html" class="btn btn-primary">
+            <span>←</span>
+            Dashboard
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <div class="calendar-nav">
+            <button class="nav-btn" id="prevMonth">‹</button>
+            <button class="nav-btn" id="nextMonth">›</button>
+          </div>
+          <div class="calendar-month" id="currentMonth"></div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Calendar will be generated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Upcoming Bills Section -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span>📋</span>
+            Upcoming Bills
+          </h3>
+          <div class="bills-list" id="billsList">
+            <!-- Bills will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span>📝</span>
+            Notes
+          </h3>
+          <div class="notes-list" id="notesList">
+            <div class="note-item">Remember to pay rent by the 15th</div>
+            <div class="note-item">Check electricity usage this month</div>
+            <div class="note-item">Review subscription services</div>
+          </div>
+          <button class="add-note-btn" id="addNoteBtn">+ Add Note</button>
+        </div>
+
+        <!-- Savings Goals Section -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span>🎯</span>
+            Savings Goals
+          </h3>
+          <div class="savings-list" id="savingsList">
+            <div class="savings-item">
+              <div class="savings-name">Emergency Fund</div>
+              <div class="savings-progress">
+                <div class="savings-bar">
+                  <div class="savings-fill" style="width: 65%"></div>
+                </div>
+                <div class="savings-amount">$6,500</div>
+              </div>
+              <div class="savings-target">Target: $10,000</div>
+            </div>
+            <div class="savings-item">
+              <div class="savings-name">Vacation Fund</div>
+              <div class="savings-progress">
+                <div class="savings-bar">
+                  <div class="savings-fill" style="width: 40%"></div>
+                </div>
+                <div class="savings-amount">$800</div>
+              </div>
+              <div class="savings-target">Target: $2,000</div>
+            </div>
+            <div class="savings-item">
+              <div class="savings-name">New Laptop</div>
+              <div class="savings-progress">
+                <div class="savings-bar">
+                  <div class="savings-fill" style="width: 75%"></div>
+                </div>
+                <div class="savings-amount">$1,500</div>
+              </div>
+              <div class="savings-target">Target: $2,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bill Details Modal -->
+  <div class="bill-modal" id="billModal">
+    <div class="bill-modal-content">
+      <div class="bill-modal-header">
+        <h2 class="bill-modal-title" id="modalTitle">Bill Details</h2>
+        <button class="close-modal" id="closeModal">×</button>
+      </div>
+      <div id="modalContent">
+        <!-- Bill details will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    const currentTheme = localStorage.getItem('theme') || 'regular';
+    html.setAttribute('data-theme', currentTheme);
+    updateThemeIcon(currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'cyberpunk' ? 'regular' : 'cyberpunk';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      themeIcon.textContent = theme === 'cyberpunk' ? '☀️' : '🌙';
+    }
+
+    // Bill Data
+    const bills = [
+      { name: 'Rent', amount: 1850.00, dueDate: new Date(2024, 1, 16), icon: 'H', urgent: true },
+      { name: 'Electricity', amount: 142.50, dueDate: new Date(2024, 1, 18), icon: 'E', urgent: false },
+      { name: 'Phone & Internet', amount: 89.99, dueDate: new Date(2024, 1, 20), icon: 'P', urgent: false },
+      { name: 'Spotify Premium', amount: 10.99, dueDate: new Date(2024, 1, 22), icon: 'S', urgent: false },
+      { name: 'Car Insurance', amount: 185.00, dueDate: new Date(2024, 1, 25), icon: 'C', urgent: false },
+    ];
+
+    // Calendar State
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
+
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Initialize Calendar
+    function renderCalendar() {
+      const calendarGrid = document.getElementById('calendarGrid');
+      const currentMonthEl = document.getElementById('currentMonth');
+      
+      currentMonthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+      calendarGrid.innerHTML = '';
+
+      // Add day headers
+      dayNames.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day-header';
+        header.textContent = day;
+        calendarGrid.appendChild(header);
+      });
+
+      // Get first day of month and number of days
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+      // Add previous month's days
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        const dayEl = createDayElement(day, true, currentYear, currentMonth - 1);
+        calendarGrid.appendChild(dayEl);
+      }
+
+      // Add current month's days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = createDayElement(day, false, currentYear, currentMonth);
+        calendarGrid.appendChild(dayEl);
+      }
+
+      // Add next month's days to fill the grid
+      const totalCells = calendarGrid.children.length;
+      const remainingCells = 42 - totalCells; // 6 rows * 7 days
+      for (let day = 1; day <= remainingCells; day++) {
+        const dayEl = createDayElement(day, true, currentYear, currentMonth + 1);
+        calendarGrid.appendChild(dayEl);
+      }
+    }
+
+    function createDayElement(day, isOtherMonth, year, month) {
+      const dayEl = document.createElement('div');
+      dayEl.className = 'calendar-day';
+      if (isOtherMonth) dayEl.classList.add('other-month');
+
+      const today = new Date();
+      if (!isOtherMonth && 
+          day === today.getDate() && 
+          month === today.getMonth() && 
+          year === today.getFullYear()) {
+        dayEl.classList.add('today');
+      }
+
+      const dayNumber = document.createElement('div');
+      dayNumber.className = 'day-number';
+      dayNumber.textContent = day;
+      dayEl.appendChild(dayNumber);
+
+      // Add bills for this day
+      const billsForDay = bills.filter(bill => {
+        const billDate = bill.dueDate;
+        return billDate.getDate() === day &&
+               billDate.getMonth() === month &&
+               billDate.getFullYear() === year;
+      });
+
+      billsForDay.forEach(bill => {
+        const billEl = document.createElement('div');
+        billEl.className = `bill-item-calendar ${bill.urgent ? 'urgent' : 'normal'}`;
+        billEl.textContent = bill.name;
+        billEl.title = `${bill.name}: $${bill.amount.toFixed(2)}`;
+        billEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showBillModal(bill);
+        });
+        dayEl.appendChild(billEl);
+      });
+
+      return dayEl;
+    }
+
+    // Navigation
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar();
+    });
+
+    // Modal Functions
+    function showBillModal(bill) {
+      const modal = document.getElementById('billModal');
+      const title = document.getElementById('modalTitle');
+      const content = document.getElementById('modalContent');
+
+      title.textContent = bill.name;
+      content.innerHTML = `
+        <div class="bill-detail">
+          <div class="bill-detail-label">Amount</div>
+          <div class="bill-detail-value">$${bill.amount.toFixed(2)}</div>
+        </div>
+        <div class="bill-detail">
+          <div class="bill-detail-label">Due Date</div>
+          <div class="bill-detail-value">${bill.dueDate.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}</div>
+        </div>
+        <div class="bill-detail">
+          <div class="bill-detail-label">Status</div>
+          <div class="bill-detail-value">${bill.urgent ? '⚠️ Urgent' : 'Normal'}</div>
+        </div>
+      `;
+
+      modal.classList.add('active');
+    }
+
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('billModal').classList.remove('active');
+    });
+
+    document.getElementById('billModal').addEventListener('click', (e) => {
+      if (e.target.id === 'billModal') {
+        document.getElementById('billModal').classList.remove('active');
+      }
+    });
+
+    // Render Bills List in Sidebar
+    function renderBillsList() {
+      const billsList = document.getElementById('billsList');
+      billsList.innerHTML = '';
+
+      // Sort bills by due date
+      const sortedBills = [...bills].sort((a, b) => a.dueDate - b.dueDate);
+
+      sortedBills.forEach(bill => {
+        const billItem = document.createElement('div');
+        billItem.className = `bill-list-item ${bill.urgent ? 'urgent' : 'normal'}`;
+        billItem.addEventListener('click', () => showBillModal(bill));
+
+        const daysUntil = Math.ceil((bill.dueDate - new Date()) / (1000 * 60 * 60 * 24));
+        const dateText = daysUntil < 0 
+          ? `Overdue by ${Math.abs(daysUntil)} days`
+          : daysUntil === 0 
+          ? 'Due today'
+          : daysUntil === 1 
+          ? 'Due tomorrow'
+          : `Due in ${daysUntil} days`;
+
+        billItem.innerHTML = `
+          <div class="bill-list-info">
+            <div class="bill-list-name">${bill.name}</div>
+            <div class="bill-list-date">${dateText}</div>
+          </div>
+          <div class="bill-list-amount">$${bill.amount.toFixed(2)}</div>
+        `;
+
+        billsList.appendChild(billItem);
+      });
+    }
+
+    // Notes functionality
+    let notes = [
+      'Remember to pay rent by the 15th',
+      'Check electricity usage this month',
+      'Review subscription services'
+    ];
+
+    function renderNotes() {
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+      
+      notes.forEach((note, index) => {
+        const noteItem = document.createElement('div');
+        noteItem.className = 'note-item';
+        noteItem.textContent = note;
+        noteItem.addEventListener('dblclick', () => {
+          const newNote = prompt('Edit note:', note);
+          if (newNote && newNote.trim()) {
+            notes[index] = newNote.trim();
+            renderNotes();
+            saveNotes();
+          }
+        });
+        noteItem.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          if (confirm('Delete this note?')) {
+            notes.splice(index, 1);
+            renderNotes();
+            saveNotes();
+          }
+        });
+        notesList.appendChild(noteItem);
+      });
+    }
+
+    function saveNotes() {
+      localStorage.setItem('calendarNotes', JSON.stringify(notes));
+    }
+
+    function loadNotes() {
+      const saved = localStorage.getItem('calendarNotes');
+      if (saved) {
+        notes = JSON.parse(saved);
+      }
+    }
+
+    document.getElementById('addNoteBtn').addEventListener('click', () => {
+      const newNote = prompt('Enter a new note:');
+      if (newNote && newNote.trim()) {
+        notes.push(newNote.trim());
+        renderNotes();
+        saveNotes();
+      }
+    });
+
+    // Initialize
+    loadNotes();
+    renderCalendar();
+    renderBillsList();
+    renderNotes();
+  </script>
+</body>
+</html>
+
